@@ -10,18 +10,50 @@ Attention: The testing.sh script needs podman to be installed on your machine an
 
 #### Making the script executable
 
-```
+```bash
 chmod +x testing.sh
 ```
 
 #### Running the script
 
+The testing script allows you to directly use a docker image and run the application inside it.
+This can be useful if you don't want to install the go binaries on your machine and you cannot build a docker image.
 Depending weather you want to run directly the go file or you want to build you go project into a binary, run the following:
 
-```
+```bash
 ./testing.sh go run main.go
 ```
 
+```bash
+./testing.sh go build main.go
 ```
-./testing.sh go build -o bin/blyf
+
+### Using the docker image
+
+You can run the application via docker.
+First, you need to build the application:
+
+```bash
+# you can use either docker or podman
+docker build -t blyf:dev . # or use whatever tag you prefer
+```
+
+Second, run the application:
+
+```bash
+docker run blyf:dev
+```
+
+Or you can run one of the dev shell scripts:
+
+```bash
+# depending on which container runtime you have, use either one
+./dev_docker.sh
+./dev_podman.sh
+```
+
+Double check if the files are executable. If not run:
+
+```bash
+chmod +x <script>
 ```
