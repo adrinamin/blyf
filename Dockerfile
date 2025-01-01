@@ -4,19 +4,17 @@ FROM golang:1-alpine AS builder
 # Set the working directory inside the container
 WORKDIR /app
 
-COPY main.go ./
-
-# Copy go.mod and go.sum files
-# COPY go.mod go.sum ./
-
+# Copy go.mod and source files to container 
+COPY go.mod ./
 # Download dependencies
-# RUN go mod download
-
+RUN go mod download
 # Copy the source code
-# COPY . .
+# COPY . . 
+COPY *.go ./
 
 # Build the Go application
-RUN go build main.go
+# RUN go build main.go # only necessary when app is not a module
+RUN go build 
 
 # Stage 2: Create a minimal image with the compiled binary
 FROM alpine:latest
@@ -28,10 +26,10 @@ FROM alpine:latest
 WORKDIR /root/
 
 # Copy the compiled binary from the builder stage
-COPY --from=builder /app/main .
+COPY --from=builder /app/blyf .
 
 # Expose the application's port (adjust if necessary)
 EXPOSE 8080
 
 # Command to run the executable
-CMD ["./main"]
+CMD ["./blyf"]
