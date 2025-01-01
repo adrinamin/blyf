@@ -2,4 +2,4 @@
 
 podman build -t blyf:dev .
 
-podman run --rm blyf:dev # remove container after execution
+podman run --rm -d -p 8080:8080 blyf:dev # remove container after execution
