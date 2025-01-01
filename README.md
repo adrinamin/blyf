@@ -28,6 +28,8 @@ Depending weather you want to run directly the go file or you want to build you 
 ./testing.sh go build main.go
 ```
 
+Or just use `./testing.sh go` to run the go cli and see what commands are available.
+
 ### Using the docker image
 
 You can run the application via docker.
