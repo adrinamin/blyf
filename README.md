@@ -59,3 +59,11 @@ Double check if the files are executable. If not run:
 ```bash
 chmod +x <script>
 ```
+
+## Testing the file upload
+
+When just using the terminal, you can use curl:
+
+```bash
+curl -X POST -F "file=@ test.txt" http://localhost:8080/upload
+```

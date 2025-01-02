@@ -28,9 +28,33 @@ func basicMessage(w http.ResponseWriter, req *http.Request) {
 }
 
 func uploadHandler(w http.ResponseWriter, req *http.Request) {
-	fileUploadMessage := "File upload"
-	fmt.Println("Uploading file...")
-	io.WriteString(w, fmt.Sprintf("%s\n", fileUploadMessage))
+	if req.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// fileUploadMessage := "File upload"
+	// io.WriteString(w, fmt.Sprintf("%s\n", fileUploadMessage))
+
+	// Parse the multipart form, with a maximum memory of 10MB
+	err := req.ParseMultipartForm(10 << 20) // 10MB
+	if err != nil {
+		http.Error(w, "Error parsing form data", http.StatusBadRequest)
+		return
+	}
+
+	file, handler, err := req.FormFile("file")
+	if err != nil {
+		http.Error(w, "Error retrieving the file", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	// todo: Create a destination file
+	// todo: Copy the uploaded file's content to the destination file
+
+	fmt.Fprintf(w, "Upload of %s was successful.", handler.Filename)
+
 }
 
 func downloadHandler(w http.ResponseWriter, req *http.Request) {
