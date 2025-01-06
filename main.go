@@ -8,13 +8,18 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
+)
+
+const (
+	FilePath = "files"
 )
 
 func main() {
 
 	fmt.Println("Initializing....")
 	fmt.Println("Creating upload dir")
-	err := os.Mkdir("uploads", fs.ModeDir)
+	err := os.Mkdir(FilePath, fs.ModeDir)
 	if err != nil && !os.IsExist(err) {
 		fmt.Println(err)
 	}
@@ -66,7 +71,7 @@ func uploadHandler(w http.ResponseWriter, req *http.Request) {
 
 	// validate filename to avoid directory traversal attacks
 	safeFileName := filepath.Base(handler.Filename)
-	destinationFile, err := os.Create(fmt.Sprintf("uploads/%s", safeFileName))
+	destinationFile, err := os.Create(fmt.Sprintf("%s/%s", FilePath, safeFileName))
 	if err != nil {
 		log.Println("Error creating destination", err)
 		http.Error(w, "Error creating destination file", http.StatusInternalServerError)
@@ -89,9 +94,13 @@ func uploadHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func downloadHandler(w http.ResponseWriter, req *http.Request) {
-	fileDownloadMessage := "File download"
-	fmt.Println("Download file...")
-	io.WriteString(w, fmt.Sprintf("%s\n", fileDownloadMessage))
+	path := req.URL.Path
+	fmt.Printf("url path: %s\n", path)
+	pathElements := strings.Split(path, "/")
+	fileName := pathElements[len(pathElements)-1]
+	fmt.Printf("File name: %s", fileName)
+	io.WriteString(w, fmt.Sprintf("url path: %s\n", path))
+    io.WriteString(w, fmt.Sprintf("file name: %s\n", fileName))
 }
 
 func deleteHandler(w http.ResponseWriter, req *http.Request) {
