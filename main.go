@@ -94,13 +94,18 @@ func uploadHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func downloadHandler(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
 	path := req.URL.Path
 	fmt.Printf("url path: %s\n", path)
 	pathElements := strings.Split(path, "/")
 	fileName := pathElements[len(pathElements)-1]
 	fmt.Printf("File name: %s", fileName)
 	io.WriteString(w, fmt.Sprintf("url path: %s\n", path))
-    io.WriteString(w, fmt.Sprintf("file name: %s\n", fileName))
+	io.WriteString(w, fmt.Sprintf("file name: %s\n", fileName))
 }
 
 func deleteHandler(w http.ResponseWriter, req *http.Request) {
