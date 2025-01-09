@@ -1,5 +1,11 @@
 # blyf
 
+A basic fileserver for uploading and downloading small files.
+
+## Attention!
+
+This project is still work in progress!
+
 ## Testing
 
 You can either install the go binary on your machine (https://go.dev/doc/install) or use the testing.sh script.
