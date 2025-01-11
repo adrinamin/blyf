@@ -9,12 +9,8 @@ COPY go.mod .
 COPY cmd ./cmd
 # Download dependencies
 RUN go mod download
-# Copy the source code
-# COPY . . 
-# COPY *.go ./
 
 # Build the Go application
-# RUN go build main.go # only necessary when app is not a module
 RUN go build -o blyf ./cmd/server/ 
 
 # Stage 2: Create a minimal image with the compiled binary
