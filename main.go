@@ -40,6 +40,11 @@ func main() {
 }
 
 func basicMessage(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
 	fmt.Fprintf(w, "Welcome to blyf!\n Here are your current files:\n ")
 
 	files, err := ioutil.ReadDir(FilePath)
@@ -50,6 +55,8 @@ func basicMessage(w http.ResponseWriter, req *http.Request) {
 	for _, file := range files {
 		fmt.Fprintf(w, "%s\n", file.Name())
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func uploadHandler(w http.ResponseWriter, req *http.Request) {
@@ -107,7 +114,7 @@ func uploadHandler(w http.ResponseWriter, req *http.Request) {
 	// todo: Copy the uploaded file's content to the destination file
 
 	fmt.Fprintf(w, "Upload of %s was successful.\n", handler.Filename)
-
+	w.WriteHeader(http.StatusCreated)
 }
 
 func fileAlreadyExists(fileName string) bool {
@@ -131,12 +138,46 @@ func downloadHandler(w http.ResponseWriter, req *http.Request) {
 	pathElements := strings.Split(path, "/")
 	fileName := pathElements[len(pathElements)-1]
 	fmt.Printf("File name: %s", fileName)
-	io.WriteString(w, fmt.Sprintf("url path: %s\n", path))
-	io.WriteString(w, fmt.Sprintf("file name: %s\n", fileName))
+	fmt.Fprintf(w, "Trying to download content of file: %s/%s\n", FilePath, fileName)
+	_, err := os.Stat(fmt.Sprintf("%s/%s", FilePath, fileName))
+	if err != nil {
+		if os.IsNotExist(err) {
+			http.Error(w, "File not found.", http.StatusNotFound)
+			return
+		}
+	}
+
+	fmt.Fprintf(w, "Downloading content of file from: %s/%s\n", FilePath, fileName)
+	fmt.Fprintf(w, "Content:\n")
+	http.ServeFile(w, req, fmt.Sprintf("%s/%s", FilePath, fileName))
+	w.WriteHeader(http.StatusOK)
 }
 
 func deleteHandler(w http.ResponseWriter, req *http.Request) {
-	fileDeleteMessage := "File delete"
+	if req.Method != http.MethodDelete {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
 	fmt.Println("Delete file...")
-	io.WriteString(w, fmt.Sprintf("%s\n", fileDeleteMessage))
+	path := req.URL.Path
+	e := strings.Split(path, "/")
+	fileName := e[len(e)-1]
+	fmt.Fprintf(w, "Deleting file %s\n", fileName)
+	completeFileName := fmt.Sprintf("%s/%s", FilePath, fileName)
+	_, err := os.Stat(completeFileName)
+	if err != nil {
+		if os.IsNotExist(err) {
+			http.Error(w, "File not found.", http.StatusNotFound)
+			return
+		}
+	}
+
+	err = os.Remove(completeFileName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	fmt.Fprintf(w, "Successfully deleted the file %s\n", fileName)
+	w.WriteHeader(http.StatusAccepted)
 }
