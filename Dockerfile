@@ -7,6 +7,7 @@ WORKDIR /app
 # Copy go.mod and source files to container 
 COPY go.mod .
 COPY cmd ./cmd
+COPY api ./api
 # Download dependencies
 RUN go mod download
 

@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+    "github.com/adrinamin/blyf/api"
 )
 
 const (
@@ -26,6 +27,7 @@ func main() {
 	}
 
 	// register
+    api.RegisterRoutes()
 	http.HandleFunc("/blyf", basicMessage)
 	http.HandleFunc("/upload", uploadHandler)
 	http.HandleFunc("/download/", downloadHandler)
