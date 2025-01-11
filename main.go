@@ -71,7 +71,14 @@ func uploadHandler(w http.ResponseWriter, req *http.Request) {
 
 	// validate filename to avoid directory traversal attacks
 	safeFileName := filepath.Base(handler.Filename)
-	destinationFile, err := os.Create(fmt.Sprintf("%s/%s", FilePath, safeFileName))
+	completeFileName := fmt.Sprintf("%s/%s", FilePath, safeFileName)
+	exists := fileAlreadyExists(completeFileName)
+	if exists {
+        fmt.Fprintf(w, "File %s already exists. It will be renamed to %s + (1)\n", completeFileName, completeFileName)
+		completeFileName = completeFileName + "(1)"
+	}
+
+	destinationFile, err := os.Create(completeFileName)
 	if err != nil {
 		log.Println("Error creating destination", err)
 		http.Error(w, "Error creating destination file", http.StatusInternalServerError)
@@ -91,6 +98,16 @@ func uploadHandler(w http.ResponseWriter, req *http.Request) {
 
 	fmt.Fprintf(w, "Upload of %s was successful.\n", handler.Filename)
 
+}
+
+func fileAlreadyExists(fileName string) bool {
+	_, err := os.Stat(fileName)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
+	}
+	return true
 }
 
 func downloadHandler(w http.ResponseWriter, req *http.Request) {
