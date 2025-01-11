@@ -12,12 +12,12 @@ You can either install the go binary on your machine (https://go.dev/doc/install
 
 ### Using the sript
 
-Attention: The testing.sh script needs podman to be installed on your machine and the go image needs to be downloaded.
+Attention: The run_go.sh script needs podman to be installed on your machine and the go image needs to be downloaded.
 
 #### Making the script executable
 
 ```bash
-chmod +x testing.sh
+chmod +x run_go.sh
 ```
 
 #### Running the script
@@ -27,14 +27,14 @@ This can be useful if you don't want to install the go binaries on your machine 
 Depending weather you want to run directly the go file or you want to build you go project into a binary, run the following:
 
 ```bash
-./testing.sh go run main.go
+./run_go.sh go run main.go
 ```
 
 ```bash
-./testing.sh go build main.go
+./run_go.sh go build main.go
 ```
 
-Or just use `./testing.sh go` to run the go cli and see what commands are available.
+Or just use `./run_go.sh go` to run the go cli and see what commands are available.
 
 ### Using the docker image
 
@@ -68,8 +68,12 @@ chmod +x <script>
 
 ## Testing the file upload
 
-When just using the terminal, you can use curl:
+When just using the terminal, you can use either curl or the e2e_testing.sh script.
+When using the e2e_testing shell script, double check if it is executable, beforehand.
+When running curl commands, you can do something like this:
 
 ```bash
 curl -X POST -F "file=@ test.txt" http://localhost:8080/upload
 ```
+
+Ultimately, the e2e_testing script does more or less the same.
