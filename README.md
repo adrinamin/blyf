@@ -27,11 +27,11 @@ This can be useful if you don't want to install the go binaries on your machine 
 Depending weather you want to run directly the go file or you want to build you go project into a binary, run the following:
 
 ```bash
-./run_go.sh go run main.go
+./run_go.sh go run ./cmd/server/main.go
 ```
 
 ```bash
-./run_go.sh go build main.go
+./run_go.sh go build -o blyf ./cmd/server/
 ```
 
 Or just use `./run_go.sh go` to run the go cli and see what commands are available.
