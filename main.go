@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -39,9 +40,16 @@ func main() {
 }
 
 func basicMessage(w http.ResponseWriter, req *http.Request) {
-	message := "Welcome to blyf"
+	fmt.Fprintf(w, "Welcome to blyf!\n Here are your current files:\n ")
 
-	io.WriteString(w, fmt.Sprintf("%s\n", message))
+	files, err := ioutil.ReadDir(FilePath)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	for _, file := range files {
+		fmt.Fprintf(w, "%s\n", file.Name())
+	}
 }
 
 func uploadHandler(w http.ResponseWriter, req *http.Request) {
@@ -74,8 +82,10 @@ func uploadHandler(w http.ResponseWriter, req *http.Request) {
 	completeFileName := fmt.Sprintf("%s/%s", FilePath, safeFileName)
 	exists := fileAlreadyExists(completeFileName)
 	if exists {
-        fmt.Fprintf(w, "File %s already exists. It will be renamed to %s + (1)\n", completeFileName, completeFileName)
-		completeFileName = completeFileName + "(1)"
+		fmt.Fprintf(w, "File %s already exists. Please rename your file and try it again.\n", completeFileName)
+		// completeFileName = completeFileName + "(1)"
+		http.Error(w, "File upload failed because file name already exists.", http.StatusBadRequest)
+		return
 	}
 
 	destinationFile, err := os.Create(completeFileName)
