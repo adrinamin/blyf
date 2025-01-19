@@ -8,6 +8,7 @@ import (
     "path/filepath"
     "os"
     "log"
+    "strings"
 )
 
 const (
@@ -95,4 +96,57 @@ func fileAlreadyExists(fileName string) bool {
 	return true
 }
 
+func DownloadFileHandler(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
 
+	path := req.URL.Path
+	fmt.Printf("url path: %s\n", path)
+	pathElements := strings.Split(path, "/")
+	fileName := pathElements[len(pathElements)-1]
+	fmt.Printf("File name: %s", fileName)
+	fmt.Fprintf(w, "Trying to download content of file: %s/%s\n", FilePath, fileName)
+	_, err := os.Stat(fmt.Sprintf("%s/%s", FilePath, fileName))
+	if err != nil {
+		if os.IsNotExist(err) {
+			http.Error(w, "File not found.", http.StatusNotFound)
+			return
+		}
+	}
+
+	fmt.Fprintf(w, "Downloading content of file from: %s/%s\n", FilePath, fileName)
+	fmt.Fprintf(w, "Content:\n")
+	http.ServeFile(w, req, fmt.Sprintf("%s/%s", FilePath, fileName))
+	w.WriteHeader(http.StatusOK)
+}
+
+func DeleteFileHandler(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodDelete {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	fmt.Println("Delete file...")
+	path := req.URL.Path
+	e := strings.Split(path, "/")
+	fileName := e[len(e)-1]
+	fmt.Fprintf(w, "Deleting file %s\n", fileName)
+	completeFileName := fmt.Sprintf("%s/%s", FilePath, fileName)
+	_, err := os.Stat(completeFileName)
+	if err != nil {
+		if os.IsNotExist(err) {
+			http.Error(w, "File not found.", http.StatusNotFound)
+			return
+		}
+	}
+
+	err = os.Remove(completeFileName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	fmt.Fprintf(w, "Successfully deleted the file %s\n", fileName)
+	w.WriteHeader(http.StatusAccepted)
+}
