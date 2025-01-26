@@ -1,18 +1,20 @@
 package handlers
 
 import (
-    "fmt"
-    "io"
-    "io/ioutil"
-    "net/http"
-    "path/filepath"
-    "os"
-    "log"
-    "strings"
+	"fmt"
+	"github.com/adrinamin/blyf/utils"
+	"io"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 const (
-	FilePath = "files"
+	FilePath    = "files"
+	MaxFileSize = 10 * 1024 * 1024
 )
 
 func GetFilesHandler(w http.ResponseWriter, req *http.Request) {
@@ -41,8 +43,8 @@ func UploadFileHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// Parse the multipart form, with a maximum memory of 10MB
-	err := req.ParseMultipartForm(10 << 20) // 10MB
+	// Parse the multipart form, with a maximum memory of 32MB
+	err := req.ParseMultipartForm(32 << 20)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Error parsing form data", http.StatusBadRequest)
@@ -64,6 +66,12 @@ func UploadFileHandler(w http.ResponseWriter, req *http.Request) {
 	if exists {
 		fmt.Fprintf(w, "File %s already exists. Please rename your file and try it again.\n", completeFileName)
 		http.Error(w, "File upload failed because file name already exists.", http.StatusBadRequest)
+		return
+	}
+
+	ext := filepath.Ext(completeFileName)
+	if !utils.IsValidExtension(ext) {
+		http.Error(w, "Invalid file extension", http.StatusBadRequest)
 		return
 	}
 

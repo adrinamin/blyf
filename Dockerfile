@@ -8,6 +8,7 @@ WORKDIR /app
 COPY go.mod .
 COPY cmd ./cmd
 COPY api ./api
+COPY utils ./utils
 # Download dependencies
 RUN go mod download
 
